@@ -3,30 +3,6 @@ import TinderCard from 'react-tinder-card'
 
 const ZENN_DEV = `https://zenn.dev`;
 
-/*
-const db = [
-  {
-    name: 'Richard Hendricks',
-    url: './img/richard.jpg'
-  },
-  {
-    name: 'Erlich Bachman',
-    url: './img/erlich.jpg'
-  },
-  {
-    name: 'Monica Hall',
-    url: './img/monica.jpg'
-  },
-  {
-    name: 'Jared Dunn',
-    url: './img/jared.jpg'
-  },
-  {
-    name: 'Dinesh Chugtai',
-    url: './img/dinesh.jpg'
-  }
-]
-*/
 
 function Simple () {
   const url = "https://zenn-api.vercel.app/api/trendTech";
