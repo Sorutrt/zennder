@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 import TinderCard from 'react-tinder-card'
 import { GEMINI_API_KEY } from '../secret';
 import { GoogleGenAI } from '@google/genai';
+import { oklch } from 'culori';
 
 const ZENN_DEV = `https://zenn.dev`;
 const AI = new GoogleGenAI({apiKey: GEMINI_API_KEY});
@@ -95,6 +96,20 @@ function Simple () {
     return cardDatas;
   };
 
+  // カードタイトルの文字色を決定（oklch明度で判定）
+  const getTitleColor = (bgColor) => {
+    try {
+      const oklchColor = oklch(bgColor);
+      if (oklchColor && typeof oklchColor.l === 'number') {
+        return oklchColor.l >= 0.75 ? '#101010' : '#F0F0F0';
+      }
+    } catch (e) {
+      // 変換失敗時は黒
+      return '#101010';
+    }
+    return '#101010';
+  };
+
   // 初回マウント時にデータ取得
   useEffect(() => {
     const fetchAll = async () => {
@@ -138,9 +153,9 @@ function Simple () {
       <div className='cardContainer'>
         {cardDatas.map((cardData, idx) =>
           <TinderCard className='swipe' key={cardData.url || idx} onSwipe={(dir) => swiped(dir, cardData.title)} onCardLeftScreen={() => outOfFrame(cardData.title)}>
-            <div style={{background: cardData.color}} className='card'>
+            <div style={{ background: cardData.color }} className='card'>
               <div className='cardEmoji'>{cardData.emoji}</div>
-              <h3>{cardData.title}</h3>
+              <h3 style={{ color: getTitleColor(cardData.color) }}>{cardData.title}</h3>
             </div>
           </TinderCard>
         )}
