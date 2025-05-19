@@ -91,6 +91,7 @@ h2 {
   bottom: 0;
   margin: 10px;
   color: #111111;
+  overflow-wrap: anywhere;
 }
 
 .infoText {
