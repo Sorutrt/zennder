@@ -28,3 +28,5 @@ yarn-error.log*
 
 # Local History for Visual Studio Code
 .history/
+
+/src/secret.js

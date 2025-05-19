@@ -1,49 +1,123 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import TinderCard from 'react-tinder-card'
+import { GEMINI_API_KEY } from '../secret';
+import { GoogleGenAI } from '@google/genai';
 
 const ZENN_DEV = `https://zenn.dev`;
+const AI = new GoogleGenAI({apiKey: GEMINI_API_KEY});
 
+// カラーコードのバリデーション関数
+const isValidColor = (color) => {
+  return /^#[0-9A-Fa-f]{6}$/.test(color);
+};
 
 function Simple () {
-  const url = "https://zenn-api.vercel.app/api/trendTech";
+  // エラー情報
   const [error, setError] = useState(null);
+  // 記事データ
   const [articles, setArticles] = useState([]);
+  // カードデータ（印象色付き）
+  const [cardDatas, setCardDatas] = useState([]);
+  // 最後にスワイプした方向
   const [lastDirection, setLastDirection] = useState();
 
-  // APIからデータを取得する関数
+  // 記事データをAPIから取得
   const fetchArticles = async () => {
     try {
-      const response = await fetch(url);
+      const response = await fetch('https://zenn-api.vercel.app/api/trendTech');
       if (!response.ok) {
         throw new Error(`APIエラー: ${response.status}`);
       }
       const json = await response.json();
-      const formattedArticles = json.map((article) => ({
+      // 先頭20件のみ整形
+      const formattedArticles = json.slice(0, 20).map((article) => ({
         title: article["title"],
         emoji: article["emoji"],
         url: ZENN_DEV + article["path"]
       }));
       setArticles(formattedArticles);
       setError(null);
-    } catch (error) {
-      console.error('データ取得エラー:', error.message);
-      setError(error.message);
+      return formattedArticles;
+    } catch (err) {
+      setError(err.message);
       setArticles([]);
+      console.error(err.message);
+      return [];
     }
   };
 
-  // コンポーネントマウント時にデータを取得
-  React.useEffect(() => {
-    fetchArticles();
+  // AIにカラーコードを問い合わせるプロンプト
+  const buildColorPrompt = (urls) => {
+    return `I will send you 20 article URLs, separated by newlines. Please read each article and respond with the impression you get from it, expressed as a color in RGB. Return only the 6-digit hexadecimal color code as plain text (e.g., #FF5733), one per line, for each article. Output exactly 20 lines.`;
+  };
+
+  // AIからカラーコードを取得（最大3回リトライ）
+  const fetchColorsWithRetry = async (urls, maxRetries = 3) => {
+    const prompt = buildColorPrompt(urls);
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+      try {
+        const response = await AI.models.generateContent({
+          model: "gemini-2.0-flash",
+          contents: urls.join("\n"),
+          config: {
+            systemInstruction: prompt
+          }
+        });
+        // 返却値のtextプロパティにカラーコードが改行区切りで入っている想定
+        const text = response.text || '';
+        const colors = text.split(/\r?\n/).map(c => c.trim()).filter(Boolean);
+        return colors;
+      } catch (err) {
+        if (attempt === maxRetries) {
+          console.error(err.message);
+          return null;
+        }
+        // リトライ（待機時間なし）
+      }
+    }
+    return null;
+  };
+
+  // 記事データとカラーコードを組み合わせてカードデータを作成
+  const buildCardDatas = (articles, colors) => {
+    const cardDatas = [];
+    for (let i = 0; i < 20; i++) {
+      const article = articles[i];
+      let color = (colors && colors[i]) ? colors[i] : '#FFFFFF';
+      if (!isValidColor(color)) color = '#FFFFFF';
+      cardDatas.push({
+        title: article ? article.title : '',
+        emoji: article ? article.emoji : '',
+        url: article ? article.url : '',
+        color
+      });
+    }
+    return cardDatas;
+  };
+
+  // 初回マウント時にデータ取得
+  useEffect(() => {
+    const fetchAll = async () => {
+      // 記事データ取得
+      const articles = await fetchArticles();
+      if (articles.length === 0) return;
+      // AIでカラーコード取得
+      const urls = articles.map(a => a.url);
+      const colors = await fetchColorsWithRetry(urls);
+      // カードデータ作成
+      setCardDatas(buildCardDatas(articles, colors));
+    };
+    fetchAll();
   }, []);
 
+  // スワイプ時の処理
   const swiped = (direction, nameToDelete) => {
-    console.log('removing: ' + nameToDelete);
     setLastDirection(direction);
   };
 
+  // カードが画面外に出た時の処理
   const outOfFrame = (name) => {
-    console.log(name + ' left the screen!');
+    // 何もしない
   };
 
   // エラーが発生した場合はエラーメッセージを表示
@@ -60,18 +134,17 @@ function Simple () {
     <div>
       <link href='https://fonts.googleapis.com/css?family=Damion&display=swap' rel='stylesheet' />
       <link href='https://fonts.googleapis.com/css?family=Alatsi&display=swap' rel='stylesheet' />
-      <h1>React Tinder Card</h1>
+      <h1>Zennder</h1>
       <div className='cardContainer'>
-        {articles.map((article) =>
-          <TinderCard className='swipe' key={article.url} onSwipe={(dir) => swiped(dir, article.title)} onCardLeftScreen={() => outOfFrame(article.title)}>
-            <div style={{}} className='card'>
-              <div className='cardEmoji'>{article.emoji}</div>
-              <h3>{article.title}</h3>
+        {cardDatas.map((cardData, idx) =>
+          <TinderCard className='swipe' key={cardData.url || idx} onSwipe={(dir) => swiped(dir, cardData.title)} onCardLeftScreen={() => outOfFrame(cardData.title)}>
+            <div style={{background: cardData.color}} className='card'>
+              <div className='cardEmoji'>{cardData.emoji}</div>
+              <h3>{cardData.title}</h3>
             </div>
           </TinderCard>
         )}
       </div>
-      {lastDirection ? <h2 className='infoText'>You swiped {lastDirection}</h2> : <h2 className='infoText' />}
     </div>
   );
 }
