@@ -49,7 +49,7 @@ function Simple () {
 
   // AIにカラーコードを問い合わせるプロンプト
   const buildColorPrompt = (urls) => {
-    return `I will send you 20 article URLs, separated by newlines. Please read each article and respond with the impression you get from it, expressed as a color in RGB. Return only the 6-digit hexadecimal color code as plain text (e.g., #FF5733), one per line, for each article. Output exactly 20 lines.`;
+    return `I will send you article URLs, separated by newlines. Please read each article and respond with the impression you get from it, expressed as a color in RGB. Return only the 6-digit hexadecimal color code as plain text (e.g., #FF5733). When deciding on the color, consider the emotional tone or atmosphere of the article. Here are some guidelines for interpreting the tone into color:Articles that feel passionate, urgent, or give a sense of warning → more red elements. Articles focused on cutting-edge technology or data-driven analysis → more blue elements. Articles that feel cheerful, energetic, or written for beginners → more yellow elements. Articles with a calm, relaxing, or thoughtful tone → more green elements. Try to reflect the overall vibe of the article in the balance of RGB colors you choose.`
   };
 
   // AIからカラーコードを取得（最大3回リトライ）
