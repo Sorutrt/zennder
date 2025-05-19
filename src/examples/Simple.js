@@ -153,7 +153,7 @@ function Simple () {
       <div className='cardContainer'>
         {cardDatas.map((cardData, idx) =>
           <TinderCard className='swipe' key={cardData.url || idx} onSwipe={(dir) => swiped(dir, cardData.title)} onCardLeftScreen={() => outOfFrame(cardData.title)}>
-            <div style={{ background: cardData.color }} className='card'>
+            <div style={{ background: cardData.color }} className='card' onDoubleClick={() => window.open(cardDatas[idx].url, '_blank')}>
               <div className='cardEmoji'>{cardData.emoji}</div>
               <h3 style={{ color: getTitleColor(cardData.color) }}>{cardData.title}</h3>
             </div>
