@@ -3,7 +3,7 @@ Show you Zenn trend articles like Tinder.
 
 ## Try the demo👉
 
-![](demo.mp4)
+https://github.com/user-attachments/assets/78c68c43-7ff8-4d96-810d-b496f2b0d573
 
 ## Features✨
 - Today's Zenn Trend Articles
