@@ -1,22 +1,29 @@
-# React Tinder Card Demo
+# Zennder💕
+Show you Zenn trend articles like Tinder.
 
-A demo project to my [react-tinder-card](https://github.com/3DJakob/react-tinder-card) npm module.
+## Try the demo👉
 
-## Try the demo
+![](demo.mp4)
 
-![](demo.gif)
-
-Try the demo on the gh-pages site [here!](https://3djakob.github.io/react-tinder-card-demo/)
+## Features✨
+- Today's Zenn Trend Articles
+- Double click to read article with new tab
 
 ## The code
+This repository forked from [react-tinder-card-demo](https://github.com/3DJakob/react-tinder-card-demo).  
 
-Feel free to check out the code in [react-tinder-card-demo/src/examples](https://github.com/3DJakob/react-tinder-card-demo/tree/master/src/examples) for a usage example of how this application uses the module.
+## How to Build and Run
+Don't forget this.
+```
+npm install
+```
 
-### Simple
-The simple example is the minimum code needed to get you started.
+Build:
+```
+npm run build
+```
+Run:
+```
+npm run start
+```
 
-### Advanced
-The advanced example implements a state with references to swipe and restore cards using buttons.
-
-## Demo
-Both code examples can be tested on the [demo page.](https://3djakob.github.io/react-tinder-card-demo/)
